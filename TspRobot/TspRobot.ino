@@ -45,7 +45,7 @@ void setup() {
   Y_Pos = 2;
 
   lepel.attach(servoPin);
-  lepel.write(90); 
+  lepel.write(110); 
 
   Serial.begin(9600);
   Serial.println("Robot is ready");
@@ -54,7 +54,6 @@ void setup() {
 }
 
 void loop() {
-  //Serial.println(analogRead(X_Sensor));
   /*Serial.print("DE X ");
   Serial.println(analogRead(X_Sensor));
   Serial.print("DE Y OKE!!!: ");
@@ -172,25 +171,30 @@ void driveToY(int Y_Des){
 
   if(Y_Des != Y_Pos){
     // get going
-    analogWrite(Y_Speed, 120);
+    analogWrite(Y_Speed, 150);
     delay(50);
     
     // slow down when approaching target destination
     if(Y_NextDes == Y_Des && Y_NextDes != 0){
-      if(Y_NextDes >= 2) {
-        analogWrite(Y_Speed, Y_Des > Y_Pos ? Y_ApproachSpeed : (30));
+      if(Y_NextDes >= 4){
+        analogWrite(Y_Speed, 200);
+        delay(50);
+        analogWrite(Y_Speed, Y_Des > Y_Pos ? Y_ApproachSpeed : (50));
+        Serial.println("speedy v.2");
+      } else if(Y_NextDes >= 2) {
+        analogWrite(Y_Speed, Y_Des > Y_Pos ? Y_ApproachSpeed : (50));
         Serial.println("tokkie");
       } else if(Y_NextDes == 1){
         analogWrite(Y_Speed, Y_Des > Y_Pos ? Y_ApproachSpeed : (70));
         Serial.println("speedy");
       } else {
-        analogWrite(Y_Speed, Y_Des > Y_Pos ? Y_ApproachSpeed : (18));
+        analogWrite(Y_Speed, Y_Des > Y_Pos ? Y_ApproachSpeed : (30));
         Serial.println("slow poke");
       }
     } else if(Y_NextDes == 0){
       analogWrite(Y_Speed, 50);
     } else if(Y_Pos >= 4){
-      analogWrite(Y_Speed, 70);
+      analogWrite(Y_Speed, 80);
     }
     else{
       if(Y_Des < Y_Pos) {
@@ -234,25 +238,39 @@ void pakop() {
   delay(200);
   stop_kraan();
   delay(400);
-  lepel.write(90);
+  lepel.write(110);
   delay(400);
 
+  long starttime = millis();
   while(analogRead(Y_Sensor) < blackValue) {
+    int speed;
     if(Y_Pos == 5){
-      omlaag();
+      speed = omlaag();
+      delay(7);
+      pakop_omhoog(); 
       Serial.println(Y_Pos);
       Serial.println("doet ding");
     } else if (Y_Pos >= 3) {
-      minder_omlaag();
+      speed = minder_omlaag();
       Serial.println(Y_Pos);
       Serial.println("doet iets anders oke"); 
     } else {
-      sloom_omlaag();
+      speed = sloom_omlaag();
       Serial.println(Y_Pos);
       Serial.println("doet iets anders");
     }
+
+    analogWrite(Y_Speed, speed + ((millis() - starttime) / 3000) * 20);
     Serial.println("its white");
+    /*
+    if(millis() - starttime > 3000){
+      analogWrite(Y_Speed, speed + 30);
+      Serial.println("snelheid verhoogd");
+    }
+    */
   }
+  omhoog();
+  delay(10); 
   pakop_omhoog(); 
   Serial.println("its black");
   delay(200);
@@ -267,19 +285,19 @@ void los() {
   delay(250);
   stop_kraan();
   delay(400);
-  lepel.write(70);
+  lepel.write(60);
   Serial.print("box");
   delay(3000);
-  lepel.write(130);
+  lepel.write(107);
   Serial.print("box");
   delay(3000);
   lepel.write(180);
   Serial.print("box");
   delay(3000);
-  lepel.write(90);
+  lepel.write(110);
   delay(2000);
   omhoog();
-  delay(300);
+  delay(250);
   stop_kraan();
   delay(200);
 }
@@ -294,9 +312,11 @@ void pakop_omhoog() {
   analogWrite(Y_Speed, 1);
 }
 
-void omlaag() {
+int omlaag() {
+  int speed = 80;
   digitalWrite(Y_Direction,LOW);        
-  analogWrite(Y_Speed, 80);
+  analogWrite(Y_Speed, speed);
+  return speed;
 }
 
 void omlaag_kraan() {
@@ -304,14 +324,18 @@ void omlaag_kraan() {
   analogWrite(Y_Speed, 100);
 }
 
-void minder_omlaag() {
+int minder_omlaag() {
+  int speed = 50;
   digitalWrite(Y_Direction,LOW);        
-  analogWrite(Y_Speed, 50);
+  analogWrite(Y_Speed, speed);
+  return speed;
 }
 
-void sloom_omlaag() {
+int sloom_omlaag() {
+  int speed = 40;
   digitalWrite(Y_Direction,LOW);        
-  analogWrite(Y_Speed, 40);
+  analogWrite(Y_Speed, speed);
+  return speed;
 }
 
 void stop_kraan() {
