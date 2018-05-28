@@ -260,7 +260,7 @@ void pakop() {
       Serial.println("doet iets anders");
     }
 
-    analogWrite(Y_Speed, speed + ((millis() - starttime) / 3000) * 20);
+    analogWrite(Y_Speed, speed + ((millis() - starttime) / 1000) * 20);
     Serial.println("its white");
     /*
     if(millis() - starttime > 3000){
